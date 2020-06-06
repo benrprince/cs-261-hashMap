@@ -112,6 +112,7 @@ class HashMap:
         """
         Empties out the hash table deleting all links in the hash table.
         """
+
         # FIXME: Write this function
 
     def get(self, key):
