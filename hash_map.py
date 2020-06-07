@@ -3,6 +3,7 @@
 # Implement a hash map with chaining
 # ===================================================
 
+
 class SLNode:
     def __init__(self, key, value):
         self.next = None
@@ -112,8 +113,12 @@ class HashMap:
         """
         Empties out the hash table deleting all links in the hash table.
         """
-
-        # FIXME: Write this function
+        for i in range(0, len(self._buckets)):
+            if self._buckets[i].head is None:
+                continue
+            else:
+                self._buckets[i] = LinkedList()
+        self.size = 0
 
     def get(self, key):
         """
@@ -123,7 +128,14 @@ class HashMap:
         Return:
             The value associated to the key. None if the link isn't found.
         """
-        # FIXME: Write this function
+        hash = self._hash_function(key)
+        index = hash % self.capacity
+        list = self._buckets[index]
+        node = list.contains(key)
+        if node is None:
+            return None
+        else:
+            return node.value
 
     def resize_table(self, capacity):
         """
@@ -132,7 +144,31 @@ class HashMap:
         Args:
             capacity: the new number of buckets.
         """
-        # FIXME: Write this function
+        # Create lists of keys and values
+        key_list = []
+        value_list = []
+        for i in range(0, len(self._buckets)):
+            if self._buckets[i].head is None:
+                continue
+            else:
+                cur = self._buckets[i].head
+                while cur is not None:
+                    key_list.append(cur.key)
+                    value_list.append(cur.value)
+                    cur = cur.next
+                self._buckets[i] = LinkedList()
+        self.size = 0
+
+        # clear hash map and resize it to new capacity
+        self.clear()
+        self._buckets = []
+        for i in range(capacity):
+            self._buckets.append(LinkedList())
+        self.capacity = capacity
+
+        # Rehash
+        for i in range(0, len(key_list)):
+            self.put(key_list[i], value_list[i])
 
     def put(self, key, value):
         """
@@ -145,7 +181,19 @@ class HashMap:
             key: they key to use to has the entry
             value: the value associated with the entry
         """
-        # FIXME: Write this function
+        # Get index and linked list
+        hash = self._hash_function(key)
+        index = hash % self.capacity
+        list = self._buckets[index]
+
+        # Check to see if key already exists in linked list
+        # If true, replace the value. If false place key/value in front of list
+        cur = list.contains(key)
+        if cur is not None:
+            cur.value = value
+        else:
+            list.add_front(key, value)
+            self.size += 1
 
     def remove(self, key):
         """
@@ -155,7 +203,15 @@ class HashMap:
         Args:
             key: they key to search for and remove along with its value
         """
-        # FIXME: Write this function
+        hash = self._hash_function(key)
+        index = hash % self.capacity
+        list = self._buckets[index]
+        node = list.contains(key)
+        if node is None:
+            return
+        else:
+            list.remove(key)
+            self.size -= 1
 
     def contains_key(self, key):
         """
@@ -165,14 +221,27 @@ class HashMap:
             True if the key is found False otherwise
 
         """
-        # FIXME: Write this function
+        hash = self._hash_function(key)
+        index = hash % self.capacity
+        list = self._buckets[index]
+        node = list.contains(key)
+        if node is None:
+            return False
+        else:
+            return True
 
     def empty_buckets(self):
         """
         Returns:
             The number of empty buckets in the table
         """
-        # FIXME: Write this function
+        count = 0
+        for i in range(0, len(self._buckets)):
+            if self._buckets[i].head is None:
+                count += 1
+            else:
+                continue
+        return count
 
     def table_load(self):
         """
@@ -180,7 +249,8 @@ class HashMap:
             the ratio of (number of links) / (number of buckets) in the table as a float.
 
         """
-        # FIXME: Write this function
+        load_factor = self.size / self.capacity
+        return load_factor
 
     def __str__(self):
         """
@@ -193,3 +263,9 @@ class HashMap:
             out = out + str(index) + ': ' + str(bucket) + '\n'
             index = index + 1
         return out
+
+
+
+
+
+
